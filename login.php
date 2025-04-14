@@ -1,81 +1,82 @@
 <?php
-// إعدادات الجلسة الآمنة
-ini_set('session.cookie_samesite', 'None');
-ini_set('session.cookie_secure', 'true');
-session_set_cookie_params([
-    'lifetime' => 86400,
-    'path' => '/',
-    'domain' => 'localhost',
-    'secure' => true,
-    'httponly' => true,
-    'samesite' => 'None'
+header("Content-Type: application/json");
+require_once 'db_connect.php';
+
+session_start([
+    'cookie_lifetime' => 86400,
+    'cookie_secure' => false,
+    'cookie_httponly' => true,
+    'cookie_samesite' => 'Lax',
+    'use_strict_mode' => true
 ]);
 
-session_start();
-
-header("Access-Control-Allow-Origin: http://localhost:5173");
+// Enable CORS
+header("Access-Control-Allow-Origin: http://localhost:5174");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Content-Type: application/json");
 
-// Handle preflight request (OPTIONS method)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+    http_response_code(204);
     exit();
 }
 
-require_once 'db_connect.php';
-
-$data = json_decode(file_get_contents('php://input'), true);
-
-$response = ['success' => false, 'message' => '', 'user' => null];
-
-// التحقق من وجود بيانات الإدخال
-if (empty($data['email']) || empty($data['password'])) {
-    $response['message'] = 'Email et mot de passe requis';
-    echo json_encode($response);
-    exit;
-}
+$response = ['success' => false, 'message' => ''];
 
 try {
-    // البحث عن المستخدم في قاعدة البيانات
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
-    $stmt->execute([$data['email']]);
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if (empty($data['email']) || empty($data['password'])) {
+        throw new Exception('Email et mot de passe requis');
+    }
+
+    $email = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
+    
+    // Recherche dans la table patients
+    $stmt = $pdo->prepare("SELECT * FROM patients WHERE email = ? LIMIT 1");
+    $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // التحقق من وجود المستخدم
-    if (!$user) {
-        $response['message'] = 'Email ou mot de passe incorrect';
-        echo json_encode($response);
-        exit;
+    if (!$user || !password_verify($data['password'], $user['password'])) {
+        usleep(rand(200000, 500000));
+        throw new Exception('Identifiants incorrects');
     }
 
-    // التحقق من كلمة المرور
-    if (password_verify($data['password'], $user['password'])) {
-        // إعداد بيانات المستخدم للإرسال
-        $userData = [
+    // Stocker les infos utilisateur en session
+    $_SESSION['user'] = [
+        'id' => $user['id'],
+        'email' => $user['email'],
+        'nom' => $user['nom'],
+        'prenom' => $user['prenom'],
+        'role' => 'patient'
+    ];
+
+    // Réponse avec les données utilisateur
+    $response = [
+        'success' => true,
+        'message' => 'Connexion réussie',
+        'user' => [
             'id' => $user['id'],
-            'name' => $user['name'],
+            'nom' => $user['nom'],
+            'prenom' => $user['prenom'],
             'email' => $user['email'],
-            'role' => $user['role']
-        ];
+            'cin' => $user['cin'],
+            'numero_Tele' => $user['numero_Tele'],
+            'adress' => $user['adress'],
+            'pb' => $user['pb'],
+            'doctor_traitant' => $user['doctor_traitant'],
+            'role' => 'patient'
+        ]
+    ];
 
-        // تخزين بيانات الجلسة
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_email'] = $user['email'];
-        $_SESSION['user_role'] = $user['role'];
-
-        $response['success'] = true;
-        $response['message'] = 'Connexion réussie';
-        $response['user'] = $userData;
-    } else {
-        $response['message'] = 'Email ou mot de passe incorrect';
-    }
 } catch (PDOException $e) {
-    $response['message'] = 'Erreur de base de données: ' . $e->getMessage();
+    $response['message'] = 'Erreur base de données';
+    error_log('PDOException: ' . $e->getMessage());
+    http_response_code(500);
+} catch (Exception $e) {
+    $response['message'] = $e->getMessage();
+    http_response_code(401);
 }
 
-// إرسال الاستجابة
 echo json_encode($response);
 ?>

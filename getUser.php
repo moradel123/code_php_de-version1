@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 
 $user_id = 2;
 $user_id = 3; // Remplacez par un vrai système d'authentification
-$sql = "SELECT id, name, email, tel, address, cin FROM users WHERE id = ?";
+$sql = "SELECT id, name, email, tel, address, cin FROM patients WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();

@@ -1,46 +1,56 @@
 <?php
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *"); // Optionnel, pour le test local
 header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Headers: Content-Type");
 
-$input = file_get_contents("php://input");
-$data = json_decode($input, true);
+include("db_connect.php"); // Assurez-vous que ce fichier contient bien la connexion PDO
 
-if ($data === null || !isset($data['date'], $data['time'], $data['location'])) {
-    echo json_encode(array("message" => "Données invalides"));
+// Lire le corps JSON
+$data = json_decode(file_get_contents("php://input"), true);
+
+// Vérifier le JSON
+if (json_last_error() !== JSON_ERROR_NONE || !$data) {
+    echo json_encode(["error" => "Requête invalide ou corps JSON manquant."]);
     exit;
 }
 
-$date = $data['date'];
-$time = $data['time'];
-$location = $data['location'];
-$user_id = 1; // Remplacez par l'ID de l'utilisateur connecté
+// Extraire les données
+$date = $data["date"] ?? null;
+$time = $data["time"] ?? null;
+$location = $data["location"] ?? null;
+$patientId = isset($data["patientId"]) ? intval($data["patientId"]) : null;
 
-$servername = "localhost";
-$username = "root";
-$dbpassword = "";
-$dbname = "hospital";
-
-$conn = new mysqli($servername, $username, $dbpassword, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Vérifier que tout est fourni
+if (!$date || !$time || !$location || !$patientId) {
+    echo json_encode(["error" => "Champs requis manquants."]);
+    exit;
 }
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM appointments WHERE date = ? AND time = ? AND location = ?");
+$stmt->execute([$date, $time, $location]);
+$count = $stmt->fetchColumn();
 
-$sql_check = "SELECT * FROM appointments WHERE date = '$date' AND time = '$time' AND location = '$location'";
-$result_check = $conn->query($sql_check);
+if ($count > 0) {
+    echo json_encode(["error" => "Ce créneau est déjà réservé."]);
+    exit;
+}
+try {
+    // Vérifier si le créneau est déjà réservé
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM appointments WHERE date = ? AND time = ? AND location = ?");
+    $stmt->execute([$date, $time, $location]);
+    $count = $stmt->fetchColumn();
 
-if ($result_check->num_rows > 0) {
-    echo json_encode(array("message" => "Ce créneau est déjà pris."));
-} else {
-    $sql = "INSERT INTO appointments (user_id, date, time, location, status) VALUES ('$user_id', '$date', '$time', '$location', 'pending')";
-    if ($conn->query($sql)) {
-        echo json_encode(array("message" => "Rendez-vous pris avec succès."));
-    } else {
-        echo json_encode(array("message" => "Erreur lors de la prise de rendez-vous."));
+    if ($count > 0) {
+        echo json_encode(["error" => "Ce créneau est déjà réservé."]);
+        exit;
     }
-}
 
-$conn->close();
+    // Insérer le rendez-vous
+    $stmt = $pdo->prepare("INSERT INTO appointments (date, time, location, patient_id) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$date, $time, $location, $patientId]);
+
+    echo json_encode(["message" => "Rendez-vous réservé avec succès."]);
+} catch (PDOException $e) {
+    echo json_encode(["error" => "Erreur serveur : " . $e->getMessage()]);
+}
 ?>

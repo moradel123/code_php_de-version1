@@ -39,7 +39,7 @@ if (isset($inputData['category']) && isset($inputData['id'])) {
     $host = "localhost";
     $username = "root";
     $password = "";
-    $dbname = "hospital_management";
+    $dbname = "hospital";
 
     $conn = new mysqli($host, $username, $password, $dbname);
 

@@ -1,36 +1,37 @@
 <?php
-header("Content-Type: application/json; charset=UTF-8");
+header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Headers: Content-Type");
 
-// Connexion à la base de données
-$servername = "localhost";
-$username = "root"; // Remplacez par votre nom d'utilisateur MySQL
-$dbpassword = ""; // Remplacez par votre mot de passe MySQL
-$dbname = "hospital";
+include("db_connect.php");
 
-$conn = new mysqli($servername, $username, $dbpassword, $dbname);
+$data = json_decode(file_get_contents("php://input"), true);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(["error" => "Méthode non autorisée"]);
+    exit;
 }
 
-$user_id = 1; // Remplacez par l'ID de l'utilisateur connecté (à récupérer depuis la session ou le token)
-
-// Récupérer les rendez-vous de l'utilisateur
-$sql = "SELECT * FROM appointments WHERE user_id = '$user_id'";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    $appointments = array();
-    while ($row = $result->fetch_assoc()) {
-        $appointments[] = $row;
-    }
-    echo json_encode(array("appointments" => $appointments));
-} else {
-    echo json_encode(array("message" => "Aucun rendez-vous trouvé."));
+if (json_last_error() !== JSON_ERROR_NONE || !$data) {
+    echo json_encode(["error" => "Requête invalide ou corps JSON manquant."]);
+    exit;
 }
 
-$conn->close();
+$patientId = isset($data["patientId"]) ? intval($data["patientId"]) : null;
+
+if (!$patientId) {
+    echo json_encode(["error" => "ID du patient manquant."]);
+    exit;
+}
+
+try {
+    $stmt = $pdo->prepare("SELECT * FROM appointments WHERE patient_id = ? ORDER BY date, time");
+    $stmt->execute([$patientId]);
+    $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode(["success" => true, "appointments" => $appointments]);
+} catch (PDOException $e) {
+    echo json_encode(["error" => "Erreur serveur : " . $e->getMessage()]);
+}
 ?>

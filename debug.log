@@ -1,0 +1,72 @@
+
+
+NEW REQUEST: 2025-04-12 02:19:53
+REQUEST METHOD: OPTIONS
+HEADERS: Array
+(
+    [Host] => localhost
+    [Connection] => keep-alive
+    [Accept] => */*
+    [Access-Control-Request-Method] => POST
+    [Access-Control-Request-Headers] => content-type
+    [Origin] => http://localhost:5173
+    [User-Agent] => Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0
+    [Sec-Fetch-Mode] => cors
+    [Sec-Fetch-Site] => same-site
+    [Sec-Fetch-Dest] => empty
+    [Referer] => http://localhost:5173/
+    [Accept-Encoding] => gzip, deflate, br, zstd
+    [Accept-Language] => en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7
+)
+
+RAW INPUT: 
+DECODED DATA: 
+JSON DECODE ERROR: Syntax error
+
+
+NEW REQUEST: 2025-04-12 02:19:54
+REQUEST METHOD: OPTIONS
+HEADERS: Array
+(
+    [Host] => localhost
+    [Connection] => keep-alive
+    [Accept] => */*
+    [Access-Control-Request-Method] => POST
+    [Access-Control-Request-Headers] => content-type
+    [Origin] => http://localhost:5173
+    [User-Agent] => Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0
+    [Sec-Fetch-Mode] => cors
+    [Sec-Fetch-Site] => same-site
+    [Sec-Fetch-Dest] => empty
+    [Referer] => http://localhost:5173/
+    [Accept-Encoding] => gzip, deflate, br, zstd
+    [Accept-Language] => en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7
+)
+
+RAW INPUT: 
+DECODED DATA: 
+JSON DECODE ERROR: Syntax error
+
+
+NEW REQUEST: 2025-04-12 02:19:57
+REQUEST METHOD: OPTIONS
+HEADERS: Array
+(
+    [Host] => localhost
+    [Connection] => keep-alive
+    [Accept] => */*
+    [Access-Control-Request-Method] => POST
+    [Access-Control-Request-Headers] => content-type
+    [Origin] => http://localhost:5173
+    [User-Agent] => Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0
+    [Sec-Fetch-Mode] => cors
+    [Sec-Fetch-Site] => same-site
+    [Sec-Fetch-Dest] => empty
+    [Referer] => http://localhost:5173/
+    [Accept-Encoding] => gzip, deflate, br, zstd
+    [Accept-Language] => en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7
+)
+
+RAW INPUT: 
+DECODED DATA: 
+JSON DECODE ERROR: Syntax error

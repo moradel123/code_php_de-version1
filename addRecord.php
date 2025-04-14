@@ -32,7 +32,7 @@ if (!in_array($category, $allowed_categories)) {
 $host = "localhost";
 $username = "root";
 $password = "";
-$dbname = "hospital_management";
+$dbname = "hospital";
 
 // Connect to the database
 $conn = new mysqli($host, $username, $password, $dbname);
