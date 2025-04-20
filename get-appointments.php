@@ -1,37 +1,62 @@
 <?php
 header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
+require_once 'db_connect.php';
+
+session_start([
+    'cookie_lifetime' => 86400,
+    'cookie_secure' => false,
+    'cookie_httponly' => true,
+    'cookie_samesite' => 'Lax',
+    'use_strict_mode' => true
+]);
+
+// CORS headers
+header("Access-Control-Allow-Origin: http://localhost:5174"); // Corrigez le port si nécessaire
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true");
 
-include("db_connect.php");
-
-$data = json_decode(file_get_contents("php://input"), true);
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(["error" => "Méthode non autorisée"]);
-    exit;
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit();
 }
 
-if (json_last_error() !== JSON_ERROR_NONE || !$data) {
-    echo json_encode(["error" => "Requête invalide ou corps JSON manquant."]);
-    exit;
-}
-
-$patientId = isset($data["patientId"]) ? intval($data["patientId"]) : null;
-
-if (!$patientId) {
-    echo json_encode(["error" => "ID du patient manquant."]);
-    exit;
-}
+$response = ['success' => false, 'message' => ''];
 
 try {
-    $stmt = $pdo->prepare("SELECT * FROM appointments WHERE patient_id = ? ORDER BY date, time");
+    // Vérifier si l'utilisateur est connecté
+    if (!isset($_SESSION['user'])) {
+        throw new Exception('Vous devez être connecté pour voir vos rendez-vous', 401);
+    }
+
+    // Récupérer les données POST
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        throw new Exception('Données JSON invalides', 400);
+    }
+
+    // Utiliser l'ID de l'utilisateur de la session plutôt que des données POST
+    $patientId = $_SESSION['user']['id'];
+
+    // Préparer et exécuter la requête pour récupérer les rendez-vous
+    $stmt = $pdo->prepare("SELECT id, date, time, location FROM appointments WHERE patient_id = ? ORDER BY date, time");
     $stmt->execute([$patientId]);
+    
     $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode(["success" => true, "appointments" => $appointments]);
+    $response = [
+        'success' => true,
+        'message' => 'Rendez-vous récupérés avec succès',
+        'appointments' => $appointments
+    ];
+
 } catch (PDOException $e) {
-    echo json_encode(["error" => "Erreur serveur : " . $e->getMessage()]);
+    $response['message'] = 'Erreur de base de données : ' . $e->getMessage();
+    http_response_code(500);
+} catch (Exception $e) {
+    $response['message'] = $e->getMessage();
+    http_response_code($e->getCode() ?: 400);
 }
+
+echo json_encode($response);
 ?>

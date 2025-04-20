@@ -42,7 +42,8 @@ try {
             gender = :gender,
             adress = :address,
             pb = :pb,
-            doctor_traitant = :doctor
+            doctor_traitant = :doctor,
+            age = :age
             WHERE id = :id";
 
     $stmt = $pdo->prepare($sql);
@@ -62,6 +63,7 @@ try {
         ':address' => $input['address'] ?? '',
         ':pb' => $input['pb'] ?? '',
         ':doctor' => $input['doctor_traitant'] ?? '',
+        ':age' => $input['age'] ?? '', // Added age parameter
         ':id' => $userId
     ];
 

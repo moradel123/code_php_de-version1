@@ -1,5 +1,5 @@
-<?php
-header("Content-Type: application/json");
+<?php 
+header("Content-Type: application/json"); 
 require_once 'db_connect.php';
 
 session_start([
@@ -10,7 +10,7 @@ session_start([
     'use_strict_mode' => true
 ]);
 
-// Enable CORS
+// CORS
 header("Access-Control-Allow-Origin: http://localhost:5174");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -24,34 +24,107 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $response = ['success' => false, 'message' => ''];
 
 try {
+    // Comptes par défaut à créer
+    $defaultAccounts = [
+        'admin' => [
+            'email' => 'admin@example.com',
+            'password' => password_hash('admin123', PASSWORD_DEFAULT),
+            'nom' => 'Admin',
+            'prenom' => 'System',
+            'role' => 'admin',
+            'cin' => 'A000000',
+            'numero_Tele' => '0600000000',
+            'adress' => 'Siège social',
+            'pb' => 'Administration système',
+            'doctor_traitant' => null
+        ],
+        'directeur' => [
+            'email' => 'directeur@example.com',
+            'password' => password_hash('directeur123', PASSWORD_DEFAULT),
+            'nom' => 'Directeur',
+            'prenom' => 'Général',
+            'role' => 'directeur',
+            'cin' => 'D000000',
+            'numero_Tele' => '0600000001',
+            'adress' => 'Direction',
+            'pb' => 'Gestion générale',
+            'doctor_traitant' => null
+        ]
+    ];
+
     $data = json_decode(file_get_contents('php://input'), true);
-    
+
     if (empty($data['email']) || empty($data['password'])) {
         throw new Exception('Email et mot de passe requis');
     }
 
     $email = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
-    
-    // Recherche dans la table patients
-    $stmt = $pdo->prepare("SELECT * FROM patients WHERE email = ? LIMIT 1");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$user || !password_verify($data['password'], $user['password'])) {
-        usleep(rand(200000, 500000));
-        throw new Exception('Identifiants incorrects');
+    // Vérifier si c'est un compte par défaut
+    $isDefaultAccount = false;
+    $defaultAccountType = null;
+    
+    foreach ($defaultAccounts as $type => $account) {
+        if ($email === $account['email']) {
+            $isDefaultAccount = true;
+            $defaultAccountType = $type;
+            break;
+        }
     }
 
-    // Stocker les infos utilisateur en session
+    if ($isDefaultAccount) {
+        // Vérifier si le compte par défaut existe déjà
+        $stmt = $pdo->prepare("SELECT * FROM patients WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            // Créer le compte par défaut s'il n'existe pas
+            $account = $defaultAccounts[$defaultAccountType];
+            $insertStmt = $pdo->prepare("
+                INSERT INTO patients 
+                (email, password, nom, prenom, role, cin, numero_Tele, adress, pb, doctor_traitant, created_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ");
+            $insertStmt->execute([
+                $account['email'],
+                $account['password'],
+                $account['nom'],
+                $account['prenom'],
+                $account['role'],
+                $account['cin'],
+                $account['numero_Tele'],
+                $account['adress'],
+                $account['pb'],
+                $account['doctor_traitant']
+            ]);
+            
+            // Récupérer le nouvel utilisateur
+            $stmt->execute([$email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+    } else {
+        // Compte normal - vérification standard
+        $stmt = $pdo->prepare("SELECT * FROM patients WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Vérification du mot de passe
+    if (!$user || !password_verify($data['password'], $user['password'])) {
+        usleep(rand(200000, 500000)); // anti bruteforce
+        throw new Exception('Email ou mot de passe incorrect');
+    }
+
+    // Connexion réussie
     $_SESSION['user'] = [
         'id' => $user['id'],
         'email' => $user['email'],
         'nom' => $user['nom'],
         'prenom' => $user['prenom'],
-        'role' => 'patient'
+        'role' => $user['role']
     ];
 
-    // Réponse avec les données utilisateur
     $response = [
         'success' => true,
         'message' => 'Connexion réussie',
@@ -65,7 +138,7 @@ try {
             'adress' => $user['adress'],
             'pb' => $user['pb'],
             'doctor_traitant' => $user['doctor_traitant'],
-            'role' => 'patient'
+            'role' => $user['role']
         ]
     ];
 

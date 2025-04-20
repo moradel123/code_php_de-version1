@@ -1,0 +1,217 @@
+2025-04-19 19:39:31 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Lundi] => Array
+                (
+                    [0] => 04:00-06:00
+                    [1] => 06:00-08:00
+                    [2] => 08:00-10:00
+                )
+
+        )
+
+)
+
+2025-04-19 19:40:17 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Mardi] => Array
+                (
+                    [0] => 08:00-10:00
+                    [1] => 18:00-20:00
+                    [2] => 22:00-00:00
+                )
+
+        )
+
+)
+
+2025-04-19 19:53:12 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Mardi] => Array
+                (
+                    [0] => 08:00-10:00
+                    [1] => 18:00-20:00
+                    [2] => 22:00-00:00
+                )
+
+        )
+
+)
+
+2025-04-19 19:53:21 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Mardi] => Array
+                (
+                    [0] => 04:00-06:00
+                    [1] => 08:00-10:00
+                    [2] => 16:00-18:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:05:36 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Mardi] => Array
+                (
+                    [0] => 02:00-04:00
+                    [1] => 04:00-06:00
+                    [2] => 08:00-10:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:05:57 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Lundi] => Array
+                (
+                    [0] => 18:00-20:00
+                    [1] => 20:00-22:00
+                    [2] => 22:00-00:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:06:21 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Lundi] => Array
+                (
+                    [0] => 04:00-06:00
+                    [1] => 10:00-12:00
+                    [2] => 14:00-16:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:08:22 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Lundi] => Array
+                (
+                    [0] => 04:00-06:00
+                    [1] => 10:00-12:00
+                    [2] => 14:00-16:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:08:33 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Lundi] => Array
+                (
+                    [0] => 10:00-12:00
+                    [1] => 18:00-20:00
+                    [2] => 22:00-00:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:18:27 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Lundi] => Array
+                (
+                    [0] => 10:00-12:00
+                    [1] => 18:00-20:00
+                    [2] => 22:00-00:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:18:27 - PDO Error: SQLSTATE[HY000] [1045] Access denied for user ''@'localhost' (using password: NO)
+2025-04-19 20:20:40 - Received data: Array
+(
+    [schedule] => Array
+        (
+            [Lundi] => Array
+                (
+                    [0] => 10:00-12:00
+                    [1] => 18:00-20:00
+                    [2] => 22:00-00:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:32:07 - Received data: Array
+(
+    [doctor_id] => 1
+    [schedule] => Array
+        (
+            [Lundi] => Array
+                (
+                    [0] => 02:00-04:00
+                    [1] => 04:00-06:00
+                    [2] => 10:00-12:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:32:07 - PDO Error: SQLSTATE[HY000] [1045] Access denied for user ''@'localhost' (using password: NO)
+2025-04-19 20:38:32 - Received data: Array
+(
+    [doctor_id] => 1
+    [schedule] => Array
+        (
+            [Lundi] => Array
+                (
+                    [0] => 02:00-04:00
+                    [1] => 04:00-06:00
+                    [2] => 10:00-12:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:38:32 - PDO Error: SQLSTATE[HY000] [1045] Access denied for user ''@'localhost' (using password: NO)
+2025-04-19 20:42:04 - Received data: Array
+(
+    [doctor_id] => 1
+    [schedule] => Array
+        (
+            [Lundi] => Array
+                (
+                    [0] => 08:00-10:00
+                    [1] => 10:00-12:00
+                    [2] => 14:00-16:00
+                )
+
+        )
+
+)
+
+2025-04-19 20:42:04 - PDO Error: SQLSTATE[HY000] [1045] Access denied for user ''@'localhost' (using password: NO)

@@ -1,27 +1,20 @@
 <?php
-header("Content-Type: application/json");
-require_once 'db_connect.php';
-
-session_start([
-    'cookie_lifetime' => 86400,
-    'cookie_secure' => false,
-    'cookie_httponly' => true,
-    'cookie_samesite' => 'Lax',
-    'use_strict_mode' => true
-]);
-
-// CORS
 header("Access-Control-Allow-Origin: http://localhost:5174");
+header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Access-Control-Allow-Credentials: true");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
+    http_response_code(200);
     exit();
 }
 
-$response = ['success' => false, 'message' => ''];
+require_once 'db_connect.php';
+
+session_start();
+
+$response = ['success' => false];
 
 try {
     // Vérifier si l'utilisateur est connecté
@@ -35,7 +28,7 @@ try {
         throw new Exception('Données invalides', 400);
     }
 
-    // Valider les données
+    // Valider les champs requis
     $requiredFields = ['date', 'time', 'location', 'patientId'];
     foreach ($requiredFields as $field) {
         if (empty($data[$field])) {
@@ -43,7 +36,7 @@ try {
         }
     }
 
-    // Vérifier que le patientId correspond à l'utilisateur connecté
+    // Vérifier que patientId correspond à l'utilisateur connecté
     if ($data['patientId'] !== $_SESSION['user']['id']) {
         throw new Exception('Action non autorisée', 403);
     }
@@ -55,7 +48,7 @@ try {
 
     // Valider le format de l'heure
     if (!preg_match('/^\d{2}:\d{2}$/', $data['time'])) {
-        throw new Exception('Format d\'heure invalide', 400);
+        throw new Exception('Format de l\'heure invalide', 400);
     }
 
     // Vérifier si le créneau est déjà réservé
@@ -71,7 +64,7 @@ try {
 
     $response = [
         'success' => true,
-        'message' => 'Rendez-vous réservé avec succès',
+        'message' => 'Rendez-vous pris avec succès',
         'appointmentId' => $pdo->lastInsertId()
     ];
 
